@@ -1,0 +1,15 @@
+# Crea un archivo .gitignore adecuado para Python/FastAPI
+echo "__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.idea/
+.vscode/
+*.sqlite
+*.db" > .gitignore
