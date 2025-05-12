@@ -3,6 +3,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import List
 from sqlalchemy.orm import Session
 from . import schemas, crud, models, database, utils
+from app.models import EcoTicket, EcoTicketCreate  # Ensure EcoTicket is imported from the correct module
 from app.routes import tickets
 from app.dependencies import get_db, get_current_user
 from app.routes import auth
@@ -108,3 +109,22 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="El usuario ya existe")
     new_user = crud.create_user(db, user)
     return {"id": new_user.id, "username": new_user.username}
+
+
+
+@app.get("/ecotickets", response_model=List[EcoTicket])
+def get_ecotickets(db: Session = Depends(get_db)):
+    return db.query(EcoTicket).all()
+
+@app.post("/ecotickets", response_model=EcoTicket)
+def create_ecoticket(ticket: EcoTicketCreate, db: Session = Depends(get_db)):
+    db_ticket = EcoTicket(
+        tipo_resto=ticket.tipo_resto,
+        volumen=ticket.volumen,
+        fecha=ticket.fecha,
+        geom=f"POINT({ticket.longitud} {ticket.latitud})"
+    )
+    db.add(db_ticket)
+    db.commit()
+    db.refresh(db_ticket)
+    return db_ticket

@@ -1,10 +1,15 @@
 from enum import Enum as PyEnum
 from sqlalchemy import Column, Integer, String, Text, DateTime, Enum, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
+from geoalchemy2 import Geometry
 from .database import Base
 from .schemas import StatusEnum  # o donde ubiques el Enum
 from datetime import datetime, timezone
 from app.dependencies import get_db, get_current_user
+
+
+
 
 # Enumeración para el estado del ticket
 class StatusEnum(str, PyEnum):
@@ -39,3 +44,10 @@ class User(Base):
     tickets = relationship("Ticket", back_populates="user")
     role = Column(String, default="user")  # Ejemplo: 'admin', 'user', etc.
 
+class EcoTicket(Base):
+    __tablename__ = "ecotickets"
+    id = Column(Integer, primary_key=True, index=True)
+    tipo_resto = Column(String, index=True)  # Ej: "orgánico", "plástico"
+    volumen = Column(String)  # Ej: "200 kg"
+    fecha = Column(String)  # Ej: "2025-05-12"
+    geom = Column(Geometry('POINT', srid=4326))  # Coordenadas

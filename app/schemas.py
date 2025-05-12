@@ -89,7 +89,21 @@ class TicketOut(BaseModel):
 #
 #***** USERS **************************
 #
+class EcoTicketBase(BaseModel):
+    tipo_resto: str
+    volumen: str
+    fecha: str
+    longitud: float
+    latitud: float
 
+class EcoTicketCreate(EcoTicketBase):
+    pass
+
+class EcoTicket(EcoTicketBase):
+    id: int
+
+    class Config:
+        orm_mode = True
 
 
 # Al final del archivo:

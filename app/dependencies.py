@@ -7,11 +7,14 @@ from app.models import User
 from app.dependencies import get_current_user
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
+from passlib.context import CryptContext
+from typing import Generator
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # Obtiene la sesión de base de datos
-def get_db():
+
+def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
     try:
         yield db
@@ -55,3 +58,14 @@ def require_role(role: str):
         return current_user
     return role_checker
 
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def authenticate_user(db: Session, username: str, password: str):
+    user = db.query(models.User).filter(models.User.username == username).first()
+    if not user or not verify_password(password, user.hashed_password):
+        return None
+    return user
